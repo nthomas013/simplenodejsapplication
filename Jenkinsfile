@@ -2,23 +2,23 @@ pipeline {
     agent any
 
     environment {
-        IMAGE_NAME = "nthomas13/nodejs-devops-project3"
+        IMAGE_NAME = "nthomas13/simplenodejsapplication"
         TAG = "latest"
     }
 
     stages {
 
-        stage('Checkout Code') {
+        stage('Checkout code') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/nthomas013/NodeJS-devops-project3.git'
+                    url: 'https://github.com/nthomas013/simplenodejsapplication.git'
             }
         }
 
         stage('Build Docker Image') {
             steps {
                 sh '''
-                  docker build -t nthomas13/nodejs-devops-project3 .
+                  docker build -t nthomas13/simplenodejsapplication .
                 '''
             }
         }
@@ -26,7 +26,7 @@ pipeline {
         stage('Push Image to DockerHub') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'DOCKER_HUB_CRED',
+                    credentialsId: 'DOCKER_HUB_CREDS',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
@@ -38,11 +38,11 @@ pipeline {
             }
         }
 
-        stage('Deploy to EKS') {
+        stage('Deploy to Kubernetes') {
             steps {
                 sh '''
-                  kubectl apply -f k8s/deployment.yml
-                  kubectl apply -f k8s/service.yml
+                  kubectl apply -f kubernetes/deployment.yml
+                  kubectl apply -f kubernetes/service.yml
                   kubectl rollout status deployment/nodejs-app
                 '''
             }
